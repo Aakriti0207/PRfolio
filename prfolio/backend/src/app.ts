@@ -1,0 +1,24 @@
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import express from "express";
+import { env } from "./config/env";
+import { errorHandler, notFound } from "./middleware/error.middleware";
+import { apiRateLimit } from "./middleware/rate-limit.middleware";
+import { authRouter } from "./routes/auth.routes";
+import { githubRouter } from "./routes/github.routes";
+import { prsRouter } from "./routes/prs.routes";
+import { profileRouter } from "./routes/profile.routes";
+
+export const app = express();
+app.disable("x-powered-by");
+app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+app.use(express.json({ limit: "100kb" }));
+app.use(cookieParser());
+app.use(apiRateLimit);
+app.get("/api/health", (_req, res) => res.json({ success: true, data: { status: "ok" } }));
+app.use("/api/auth", authRouter);
+app.use("/api/github", githubRouter);
+app.use("/api/prs", prsRouter);
+app.use("/api/profile", profileRouter);
+app.use(notFound);
+app.use(errorHandler);
