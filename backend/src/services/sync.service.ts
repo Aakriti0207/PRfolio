@@ -1,8 +1,8 @@
-import { getAuthoredPullRequests } from "../lib/github";
+import { getAuthoredPullRequests, getContributionCalendar, getGitHubUser, type GitHubContributionDay, type GitHubPullRequestDetails } from "../lib/github";
 import { prisma } from "../lib/prisma";
 import { decrypt } from "./crypto.service";
 
-export function classifyState(pr: { state: "open" | "closed"; merged_at: string | null }): "MERGED" | "OPEN" | "CLOSED" {
+export function classifyState(pr: Pick<GitHubPullRequestDetails, "state" | "merged_at">): "MERGED" | "OPEN" | "CLOSED" {
   if (pr.merged_at) return "MERGED";
   return pr.state === "open" ? "OPEN" : "CLOSED";
 }
@@ -46,4 +46,31 @@ export async function syncPullRequests(userId: string) {
     else created += 1;
   }
   return { fetched: githubPrs.length, created, updated, complete: true };
+}
+
+export async function syncContributions(userId: string) {
+  const account = await prisma.gitHubAccount.findUnique({ where: { userId } });
+  if (!account) throw new Error("No connected GitHub account");
+  const token = decrypt(account.encryptedToken);
+  const githubUser = await getGitHubUser(token);
+  const from = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+  const to = new Date();
+  const contributionDays: GitHubContributionDay[] = await getContributionCalendar(token, githubUser.login, from, to);
+  let created = 0;
+  let updated = 0;
+  for (const day of contributionDays) {
+    const existing = await prisma.contributionCalendar.findUnique({ where: { userId_date: { userId, date: day.date } } });
+    const data = {
+      contributionCount: day.contributionCount,
+      syncedAt: new Date(),
+    };
+    await prisma.contributionCalendar.upsert({
+      where: { userId_date: { userId, date: day.date } },
+      update: data,
+      create: { userId, date: day.date, ...data },
+    });
+    if (existing) updated += 1;
+    else created += 1;
+  }
+  return { fetched: contributionDays.length, created, updated, syncedAt: new Date() };
 }

@@ -22,12 +22,26 @@ model User {
   location                String?
   website                 String?
   profileSlug             String         @unique
+  isPublished             Boolean        @default(false)
   contributionGraphVisible Boolean        @default(true)
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   githubAccount           GitHubAccount?
   sessions                Session[]
   pullRequests            PullRequest[]
+  contributionCalendars  ContributionCalendar[]
+}
+
+model ContributionCalendar {
+  id                  String   @id @default(cuid())
+  userId              String
+  date                String
+  contributionCount  Int
+  syncedAt            DateTime @default(now())
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
 }
 
 model GitHubAccount {
