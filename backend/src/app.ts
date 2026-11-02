@@ -8,6 +8,7 @@ import { authRouter } from "./routes/auth.routes";
 import { githubRouter } from "./routes/github.routes";
 import { prsRouter } from "./routes/prs.routes";
 import { profileRouter } from "./routes/profile.routes";
+import { publicationRouter } from "./routes/publication.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -19,6 +20,7 @@ app.get("/api/health", (_req, res) => res.json({ success: true, data: { status: 
 app.use("/api/auth", authRouter);
 app.use("/api/github", githubRouter);
 app.use("/api/prs", prsRouter);
+app.use("/api/profile/publication", publicationRouter);
 app.use("/api/profile", profileRouter);
 app.use(notFound);
 app.use(errorHandler);
