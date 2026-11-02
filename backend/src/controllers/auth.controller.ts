@@ -30,7 +30,7 @@ export async function finishOAuth(req: Request, res: Response) {
 
 export async function me(req: Request, res: Response) {
   const userId = (req as Request & { userId?: string }).userId;
-  const user = userId ? await prisma.user.findUnique({ where: { id: userId }, select: { id: true, githubUsername: true, displayName: true, avatarUrl: true, profileSlug: true } }) : null;
+  const user = userId ? await prisma.user.findUnique({ where: { id: userId }, select: { id: true, githubUsername: true, displayName: true, avatarUrl: true, bio: true, location: true, website: true, profileSlug: true, isPublished: true } }) : null;
   res.json({ success: true, data: user });
 }
 

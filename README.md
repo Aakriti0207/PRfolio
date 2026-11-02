@@ -7,6 +7,20 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 See [backend/README.md](./backend/README.md) for backend setup, environment variables, OAuth callback configuration, database migrations, and the API contract.
 
+## Local frontend API configuration
+
+The frontend reads the backend URL from `NEXT_PUBLIC_API_URL`. Copy
+[`frontend/.env.local.example`](./frontend/.env.local.example) to
+`frontend/.env.local` for local development:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+```
+
+The frontend sends requests with credentials enabled so the backend's HTTP-only
+session cookie is used. Never put GitHub tokens or backend secrets in frontend
+environment variables.
+
 ## Getting Started
 
 First, run the development server:
