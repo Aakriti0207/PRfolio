@@ -57,21 +57,22 @@ function ContributionHeatmap({ contributions }: { contributions: ApiContribution
   const year = useMemo(() => getContributionYear(contributions), [contributions]);
   const weeks = useMemo(() => buildContributionWeeks(year, counts), [year, counts]);
   const monthLabels = useMemo(() => {
-    const labels: Array<{ week: number; row: number; month: string }> = [];
+    const labels: Array<{ week: number; month: string }> = [];
+    const seenMonths = new Set<number>();
     for (let weekIndex = 0; weekIndex < weeks.length; weekIndex += 1) {
       const week = weeks[weekIndex];
-      for (let row = 0; row < week.cells.length; row += 1) {
-        const cell = week.cells[row];
+      for (const cell of week.cells) {
         const parsed = cell ? new Date(`${cell.date}T00:00:00Z`) : null;
-        if (cell && parsed && parsed.getUTCFullYear() === year && parsed.getUTCDate() === 1) {
-          labels.push({ week: weekIndex, row, month: CONTRIBUTION_MONTHS[parsed.getUTCMonth()] });
+        if (cell && parsed && parsed.getUTCFullYear() === year && !seenMonths.has(parsed.getUTCMonth())) {
+          seenMonths.add(parsed.getUTCMonth());
+          labels.push({ week: weekIndex, month: CONTRIBUTION_MONTHS[parsed.getUTCMonth()] });
         }
       }
     }
     return labels;
   }, [weeks, year]);
   const totalContributions = useMemo(() => contributions.reduce((sum, day) => sum + (day.contributionCount ?? 0), 0), [contributions]);
-  const heatmapColumns = useMemo(() => ["24px", ...weeks.map(() => "var(--hm-size)")].join(" "), [weeks]);
+  const heatmapColumns = useMemo(() => ["24px", ...weeks.map(() => "minmax(var(--hm-size), var(--hm-week-width))")].join(" "), [weeks]);
 
   if (contributions.length === 0) {
     return <div className="activity-empty">Contribution activity hasn't been synced yet.</div>;
@@ -80,7 +81,7 @@ function ContributionHeatmap({ contributions }: { contributions: ApiContribution
   return (
     <div className="public-heatmap" style={{ gridTemplateColumns: heatmapColumns }}>
       {CONTRIBUTION_WEEKDAY_LABELS.map((label, row) => (
-        <span key={`weekday-${label}`} className="public-heatmap-weekday" style={{ gridColumn: 1, gridRow: row + 1 }}>{label}</span>
+        <span key={`weekday-${label}`} className="public-heatmap-weekday" style={{ gridColumn: 1, gridRow: row + 2 }}>{label}</span>
       ))}
       {weeks.map((week, weekIndex) => week.cells.map((cell, rowIndex) => {
         const level = cell ? cell.level : 0;
@@ -89,23 +90,24 @@ function ContributionHeatmap({ contributions }: { contributions: ApiContribution
         const tooltip = cell ? formatContributionTooltip(cell.date, contributionCount) : formatContributionTooltip("", contributionCount);
         const key = `contribution-${weekIndex}-${rowIndex}`;
         if (!cell) {
-          return <span key={key} className="public-heatmap-day" style={{ gridColumn: weekIndex + 2, gridRow: rowIndex + 1, background }} aria-hidden="true" />;
+          return <span key={key} className="public-heatmap-day" style={{ gridColumn: weekIndex + 2, gridRow: rowIndex + 2, background }} aria-hidden="true" />;
         }
         return (
-          <button key={key} type="button" className="public-heatmap-day" style={{ gridColumn: weekIndex + 2, gridRow: rowIndex + 1, background }} title={tooltip} aria-label={tooltip}>
-            {contributionCount > 0 ? contributionCount : ""}
+          <button key={key} type="button" className="public-heatmap-day" style={{ gridColumn: weekIndex + 2, gridRow: rowIndex + 2, background }} title={tooltip} aria-label={tooltip}>
           </button>
         );
       }))}
-      {monthLabels.map((label) => (
-        <span key={`month-${label.week}-${label.month}`} className="public-heatmap-month" style={{ gridColumn: label.week + 2, gridRow: label.row + 1, left: `calc(24px + ${label.week + 1} * var(--hm-size))`, top: `calc(${label.row} * var(--hm-size))` }}>{label.month}</span>
-      ))}
-      <div className="public-heatmap-legend" aria-hidden="true">
+      <div className="public-heatmap-months" style={{ gridTemplateColumns: heatmapColumns }}>
+        {monthLabels.map((label) => (
+          <span key={`month-${label.week}-${label.month}`} className="public-heatmap-month" style={{ gridColumn: label.week + 2 }}>{label.month}</span>
+        ))}
+      </div>
+      <div className="public-heatmap-legend" style={{ gridColumn: "1 / -1" }} aria-hidden="true">
         <span>Less</span>
         {[0, 1, 2, 3, 4].map((level) => <i key={`legend-${level}`} style={{ background: CONTRIBUTION_LEVEL_COLORS[level] }} />)}
         <span>More</span>
       </div>
-      <p className="public-heatmap-summary">GitHub activity for {year}: {totalContributions} contributions</p>
+      <p className="public-heatmap-summary" style={{ gridColumn: "1 / -1" }}>GitHub activity for {year}: {totalContributions} contributions</p>
       <span className="sr-only">GitHub contribution activity for {year}: {totalContributions} contributions.</span>
     </div>
   );
@@ -162,6 +164,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
           {profile.website && <a href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`} target="_blank" rel="noreferrer"><Link2 size={16} />{profile.website.replace(/^https?:\/\//, "")}</a>}
           <a href={`https://github.com/${profile.githubUsername}`} target="_blank" rel="noreferrer"><GitPullRequest size={16} />View GitHub <ExternalLink size={12} /></a>
         </div>
+        <footer className="public-footer"><GitPullRequest size={20} />Built with PRfolio</footer>
       </aside>
       <section className="public-main">
         <header className="public-heading"><h2>Open Source Contributions</h2><p>Selected pull requests from open-source work across organizations.</p></header>
@@ -190,7 +193,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
           )}
         </>}
         {profile.contributionGraphVisible && <section className="public-activity"><div className="public-activity-heading"><h2>GitHub Contributions</h2><span><i />Shown on profile</span></div>{contributions.length === 0 ? <div className="activity-empty">Contribution activity hasn't been synced yet.</div> : <ContributionHeatmap contributions={contributions} />}</section>}
-        <footer className="public-footer"><GitPullRequest size={20} />Built with PRfolio</footer>
       </section>
     </div>
   </main>;
