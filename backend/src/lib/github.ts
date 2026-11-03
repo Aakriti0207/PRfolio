@@ -73,9 +73,9 @@ interface GitHubContributionCalendarResponse {
 }
 
 const contributionCalendarQuery = `
-  query($login: String!, $from: Date!, $to: Date!) {
+  query($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
-      contributionsCollection(login: $login, from: $from, to: $to) {
+      contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           weeks {
             contributionDays {

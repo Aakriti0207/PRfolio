@@ -68,12 +68,10 @@ function startOfWeek(date: Date): Date {
 export function buildContributionWeeks(year: number, counts: ReadonlyMap<string, number>): ContributionWeek[] {
   const yearStart = new Date(Date.UTC(year, 0, 1));
   const firstWeekStart = startOfWeek(yearStart);
-  const lastDay = new Date(Date.UTC(year, 1, 1));
-  lastDay.setUTCDate(lastDay.getUTCDate() - 1);
-  const lastWeekStart = startOfWeek(lastDay);
+  const lastDay = new Date(Date.UTC(year, 12, 0));
   const weeks: ContributionWeek[] = [];
   let cells: Array<ContributionCell | null> = [];
-  for (let timestamp = firstWeekStart.getTime(); timestamp <= lastWeekStart.getTime(); timestamp += MS_PER_DAY) {
+  for (let timestamp = firstWeekStart.getTime(); timestamp <= lastDay.getTime(); timestamp += MS_PER_DAY) {
     const date = new Date(timestamp);
     const isoDate = date.toISOString().slice(0, 10);
     const inYear = date.getUTCFullYear() === year;
