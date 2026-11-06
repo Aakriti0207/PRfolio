@@ -10,8 +10,6 @@ const formatDate = (value: string) => new Date(value).toLocaleDateString("en-US"
 const DESKTOP_PAGE_SIZE = 8;
 const MOBILE_PAGE_SIZE = 6;
 const CONTRIBUTION_VIEWPORT_QUERY = "(min-width: 640px)";
-const CONTRIBUTION_GRID_SIZE = 12;
-const CONTRIBUTION_GUTTER_WIDTH = 24;
 const CONTRIBUTION_WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const CONTRIBUTION_LEVEL_COLORS: Record<number, string> = { 0: "#16181d", 1: "#0e4429", 2: "#006d32", 3: "#26a641", 4: "#39d353" };
 const CONTRIBUTION_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -75,7 +73,7 @@ function ContributionHeatmap({ contributions }: { contributions: ApiContribution
   const heatmapColumns = useMemo(() => ["24px", ...weeks.map(() => "minmax(var(--hm-size), var(--hm-week-width))")].join(" "), [weeks]);
 
   if (contributions.length === 0) {
-    return <div className="activity-empty">Contribution activity hasn't been synced yet.</div>;
+    return <div className="activity-empty">Contribution activity hasn&apos;t been synced yet.</div>;
   }
 
   return (
@@ -123,6 +121,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     let active = true;
     void params.then(({ slug: nextSlug }) => {
+      setPage(1);
       setSlug(nextSlug);
       return getPublicProfile(nextSlug);
     }).then((data) => { if (active) setProfile(data); }).catch((reason: unknown) => {
@@ -130,10 +129,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
     });
     return () => { active = false; };
   }, [params]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [slug]);
 
   const displayName = profile?.displayName || profile?.githubUsername || slug;
   const pullRequests = useMemo(() => profile?.pullRequests ?? [], [profile]);
@@ -192,7 +187,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             </nav>
           )}
         </>}
-        {profile.contributionGraphVisible && <section className="public-activity"><div className="public-activity-heading"><h2>GitHub Contributions</h2><span><i />Shown on profile</span></div>{contributions.length === 0 ? <div className="activity-empty">Contribution activity hasn't been synced yet.</div> : <ContributionHeatmap contributions={contributions} />}</section>}
+        {profile.contributionGraphVisible && <section className="public-activity"><div className="public-activity-heading"><h2>GitHub Contributions</h2><span><i />Shown on profile</span></div>{contributions.length === 0 ? <div className="activity-empty">Contribution activity hasn&apos;t been synced yet.</div> : <ContributionHeatmap contributions={contributions} />}</section>}
       </section>
     </div>
   </main>;
