@@ -5,40 +5,19 @@ import Link from "next/link";
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Check,
   FolderGit2,
   GitPullRequest,
   Globe2,
-  Layers3,
-  LineChart,
   Menu,
   MoveUpRight,
   Sparkles,
 } from "lucide-react";
 import { getCurrentUser, getLoginUrl, type ApiUser } from "../lib/api";
+import CuratorDemo from "../components/landing/CuratorDemo";
+import HeroGraph from "../components/landing/HeroGraph";
+import MergeScene from "../components/landing/MergeScene";
 
 const profilePreviewPath = "/Aakriti0207";
-
-function ProductPreview() {
-  return (
-    <div className="landing-preview-shell">
-      <div className="landing-preview-chrome">
-        <span><i /> PRfolio / public profile</span>
-        <span>Live product preview</span>
-      </div>
-      <div className="landing-preview-frame">
-        <iframe
-          src={profilePreviewPath}
-          title="PRfolio public profile preview"
-          loading="lazy"
-        />
-      </div>
-      <span className="landing-annotation landing-annotation-one"><Check size={13} /> GitHub connected</span>
-      <span className="landing-annotation landing-annotation-two"><LineChart size={13} /> Open-source contributions</span>
-      <span className="landing-annotation landing-annotation-three"><Globe2 size={13} /> Your developer portfolio</span>
-    </div>
-  );
-}
 
 function LandingNav({ user }: { user: ApiUser | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -79,19 +58,23 @@ export default function LandingPage() {
     return () => { active = false; };
   }, []);
 
-  const ctaHref = sessionChecked && user ? "/dashboard" : getLoginUrl();
+  const signedIn = sessionChecked && user !== null;
+  const ctaHref = signedIn ? "/dashboard" : getLoginUrl();
 
   return (
     <main className="landing-page">
+      <div className="public-grain" aria-hidden="true" />
       <LandingNav user={user} />
       <section className="landing-hero">
+        <HeroGraph />
+        <div className="landing-hero-streak" aria-hidden="true" />
         <div className="landing-hero-copy">
-          <p className="landing-kicker"><span /> Open-source work, presented clearly</p>
-          <h1>Your work deserves<br /><em>more than a GitHub link.</em></h1>
-          <p className="landing-hero-text">Every pull request tells a story. Turn your open-source contributions, projects, and developer activity into a portfolio worth sharing.</p>
+          <p className="landing-kicker"><span /> For open-source contributors</p>
+          <h1>Every PR you&apos;ve shipped.<br /><em>One link.</em></h1>
+          <p className="landing-hero-text">Connect GitHub, choose which pull requests to show, put them in your order, then publish one clean link for your resume.</p>
           <div className="landing-hero-actions">
-            <a className="landing-primary-button" href={ctaHref}>Build your PRfolio <ArrowUpRight size={16} /></a>
-            <a className="landing-secondary-button" href={profilePreviewPath}>Explore profiles <MoveUpRight size={15} /></a>
+            <a className="landing-primary-button" href={ctaHref}>{signedIn ? "Open your dashboard" : "Continue with GitHub"} <ArrowUpRight size={16} /></a>
+            <a className="landing-secondary-button" href="#how-it-works">See how it works <MoveUpRight size={15} /></a>
           </div>
         </div>
         <div className="landing-hero-note"><ArrowDownRight size={15} /> A public profile built from the work you already do.</div>
@@ -99,28 +82,15 @@ export default function LandingPage() {
 
       <section className="landing-showcase" id="product">
         <div className="landing-section-intro">
-          <p className="landing-kicker">The product</p>
-          <h2>Make the work<br />easy to see.</h2>
-          <p>PRfolio turns your GitHub activity into a focused public profile, with the context recruiters and collaborators need.</p>
+          <p className="landing-kicker">The dashboard</p>
+          <h2>Choose what to show.<br />Put it in order.</h2>
+          <p>Hide what doesn&apos;t belong, feature your best work, and reorder the rest. Your public profile updates as you curate. Try it below.</p>
         </div>
-        <ProductPreview />
-      </section>
-
-      <section className="landing-story landing-story-organized">
-        <div className="landing-story-index">01</div>
-        <div>
-          <h2>Your work,<br /><span>organized.</span></h2>
-          <p>Keep pull requests from different repositories in one place. Curate the work that best represents how you build.</p>
-        </div>
-        <div className="landing-story-detail">
-          <Layers3 size={22} />
-          <strong>Pull requests, repositories, languages</strong>
-          <span>One clear view of your open-source record.</span>
-        </div>
+        <CuratorDemo />
       </section>
 
       <section className="landing-story landing-story-activity">
-        <div className="landing-story-index">02</div>
+        <div className="landing-story-index">01</div>
         <div>
           <h2>Your activity,<br /><span>visualized.</span></h2>
           <p>Show the consistency behind the highlights with a contribution graph synced from GitHub.</p>
@@ -146,10 +116,11 @@ export default function LandingPage() {
           <p className="landing-kicker">How it works</p>
           <h2>Three steps from code<br />to a profile worth sharing.</h2>
         </div>
+        <MergeScene />
         <div className="landing-steps">
           <div><span>01</span><FolderGit2 size={22} /><h3>Connect GitHub</h3><p>Authorize PRfolio with the GitHub account behind your work.</p></div>
-          <div><span>02</span><Sparkles size={22} /><h3>Sync your contributions</h3><p>Pull requests and contribution activity stay connected to the source.</p></div>
-          <div><span>03</span><Globe2 size={22} /><h3>Publish your profile</h3><p>Choose what to feature, then share one public link.</p></div>
+          <div><span>02</span><Sparkles size={22} /><h3>Sync and curate</h3><p>Pull requests sync from GitHub. Show, hide, feature and reorder each one.</p></div>
+          <div><span>03</span><Globe2 size={22} /><h3>Publish your profile</h3><p>Share one public link. Unpublish whenever you want.</p></div>
         </div>
       </section>
 
