@@ -83,11 +83,11 @@ export default function CuratorDemo() {
         <div className="landing-demo-side">
           <p className="landing-demo-label">PUBLIC PROFILE · LIVE PREVIEW</p>
           <div className="landing-demo-profile">
-            <div className="landing-demo-profile-url">prfolio.app/aakriti0207</div>
+            <div className="landing-demo-profile-url">prfolio.app/Your-Github-Username</div>
             <div className="landing-demo-profile-body">
               <div className="landing-demo-profile-head">
-                <span className="landing-demo-avatar">A</span>
-                <div><strong>Aakriti0207</strong><span>{published.length} pull requests · {orgs} {orgs === 1 ? "org" : "orgs"}</span></div>
+                <span className="landing-demo-avatar">G</span>
+                <div><strong>Your-Github-Username</strong><span>{published.length} pull requests · {orgs} {orgs === 1 ? "org" : "orgs"}</span></div>
               </div>
               <div className="landing-demo-public-list">
                 {published.map((pr) => (

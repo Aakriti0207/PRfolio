@@ -132,7 +132,7 @@ export default function LandingPage() {
 
       <footer className="landing-footer">
         <Link className="landing-brand" href="/" aria-label="PRfolio home"><span className="landing-brand-mark"><GitPullRequest size={14} /></span><span>PRfolio</span></Link>
-        <span>Built for open-source contributors.</span>
+        <span>Built for open-source contributors - By Aakriti Arya 🫶</span>
       </footer>
     </main>
   );
