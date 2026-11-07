@@ -37,8 +37,8 @@
 .toast.toast-error{background:#231718;border-color:#5c2d30;color:#f0c4c7}
 .toast.toast-error>svg{color:#f07078}
 .animate-spin{animation:spin 1s linear infinite}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@media(max-width:800px){.public-layout{grid-template-columns:1fr;gap:28px;padding:30px 20px}.public-sidebar{min-height:0;padding:15px 0 27px;border-right:0;border-bottom:1px solid #ffffff19}.public-avatar-wrap{width:110px;height:110px}.public-sidebar h1{font-size:25px}.public-links{max-width:340px;margin:0 auto}.public-main{padding:0}.public-heading h2{font-size:28px}}
-@media(max-width:560px){.public-layout{padding:25px 15px}.public-pr-grid{grid-template-columns:1fr;gap:12px}.public-heading h2{font-size:25px}.public-heading p{font-size:13px}.public-pr-card h3{font-size:16px}.public-card-bottom{flex-wrap:wrap;gap:8px}.public-card-bottom a{width:100%;margin-left:0;margin-top:3px}.public-activity-heading{align-items:flex-start;gap:12px;flex-direction:column}}
+@media(max-width:1023px){.public-layout{grid-template-columns:1fr;gap:28px;padding:30px 20px}.public-sidebar{position:static;min-height:0;padding:15px 0 27px;border-right:0;border-bottom:1px solid #ffffff19}.public-avatar-wrap{width:110px;height:110px}.public-sidebar h1{font-size:25px}.public-links{max-width:340px;margin:0 auto}.public-main{padding:0}.public-heading h2{font-size:28px}}
+@media(max-width:639px){.public-layout{padding:25px 15px}.public-pr-grid{grid-template-columns:1fr;gap:12px}.public-heading h2{font-size:25px}.public-heading p{font-size:13px}.public-pr-card h3{font-size:16px}.public-card-bottom{flex-wrap:wrap;gap:8px}.public-card-bottom a{width:100%;margin-left:0;margin-top:3px}.public-activity-heading{align-items:flex-start;gap:12px;flex-direction:column}}
 .public-pagination{margin-top:22px;display:flex;flex-direction:column;gap:12px}
 .public-pagination-summary{margin:0;color:#687583;font:500 10px var(--font-mono);letter-spacing:.4px}
 .public-pagination-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -57,7 +57,7 @@
 .public-heatmap-legend{display:flex;align-items:center;gap:4px;margin-top:10px;color:#687583;font:500 9px var(--font-mono);white-space:nowrap}
 .public-heatmap-legend i{width:10px;height:10px;border-radius:2px;display:block}
 .public-heatmap-summary{margin:10px 0 0;color:#687583;font:500 9px var(--font-mono);white-space:nowrap}
-@media(max-width:560px){.public-heatmap{--hm-size:7px;--hm-week-width:var(--hm-size)}}
+@media(max-width:639px){.public-heatmap{--hm-size:7px;--hm-week-width:var(--hm-size)}}
 @media(max-width:380px){.public-heatmap{--hm-size:6px}}
 
 .landing-page{min-height:100dvh;background:#0b0c0e;color:#eeeff1;overflow:hidden}
@@ -210,3 +210,41 @@
 
 @media(max-width:800px){.landing-demo-body{padding:18px}.landing-demo-title{font-size:26px}.landing-scene{height:480px}.landing-hero-streak{display:none}}
 @media(prefers-reduced-motion:reduce){.landing-hero-graph .branch,.landing-hero-streak,.landing-scene-glow{animation:none}.landing-scene-card{display:none}.landing-scene-profile{animation:none;opacity:1;transform:none}}
+
+/* Public profile: wrapping and tap targets. Breakpoints follow Tailwind (sm 640px, lg 1024px): stacked below lg, one PR column below sm. */
+.public-layout>*{min-width:0}
+.public-sidebar h1,.public-handle,.public-bio,.public-links span,.public-links a{min-width:0;overflow-wrap:anywhere}
+.public-pr-card{min-width:0}
+.public-card-top h3{min-width:0;overflow-wrap:anywhere}
+.public-repo{flex-wrap:wrap;min-width:0;overflow-wrap:anywhere}
+.public-card-bottom{flex-wrap:wrap;row-gap:8px}
+.public-activity{min-width:0}
+.public-heatmap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:1023px),(pointer:coarse){
+.public-card-bottom a,.public-links a{min-height:44px;display:inline-flex;align-items:center}
+.public-card-bottom a{padding:0 2px}
+.public-pagination-button{height:44px;min-width:44px;padding:0 14px}
+.public-pagination-controls{gap:8px}
+}
+@media(max-width:639px){.public-card-bottom a{margin-top:0}.public-pagination-controls{justify-content:space-between}}
+
+/* Dashboard: featured PR reordering */
+.pr-entry.has-reorder{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start}
+.pr-entry.has-reorder>.pr-row,.pr-entry.has-reorder>.expanded-panel{grid-column:2;min-width:0}
+.reorder-controls{grid-column:1;grid-row:1 / span 2;align-self:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:30px;min-height:72px;margin-left:12px}
+.reorder-controls.inline{flex-direction:row;width:auto;min-height:0;margin:0;gap:4px}
+.reorder-position{min-width:14px;text-align:center;color:#788591;font:500 9px var(--font-mono)}
+.reorder-button{width:28px;height:26px;display:grid;place-items:center;padding:0;border:1px solid #303a44;border-radius:6px;background:#171d23;color:#aeb9c3;transition:border-color .15s,background .15s,color .15s}
+.reorder-button:hover:not(:disabled){border-color:#53665a;background:#1c2620;color:#e3eee5}
+.reorder-button:disabled{opacity:.35;cursor:not-allowed}
+.card-actions .reorder-button{width:28px;padding:0;justify-content:center}
+.reorder-hint{margin:0;padding:9px 15px;border:1px solid #273039;border-top:0;border-bottom:0;background:#0f1318;color:#7f8c98;font-size:10px}
+@media(pointer:coarse),(max-width:680px){
+.reorder-controls{width:44px;margin-left:6px;gap:0}
+.reorder-controls.inline{width:auto;gap:6px}
+.reorder-position{display:none}
+.reorder-button,.card-actions .reorder-button{width:44px;height:44px}
+}
+
+/* Dashboard list rows on phones: .pr-primary was auto-placed into the 25px icon column because the status badge and menu are pinned to columns 2 and 3. Pin it to the middle column. */
+@media(max-width:680px){.pr-row>.pr-primary{grid-column:2;grid-row:1}}
