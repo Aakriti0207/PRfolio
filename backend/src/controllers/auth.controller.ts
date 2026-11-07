@@ -25,7 +25,7 @@ export async function finishOAuth(req: Request, res: Response) {
   const session = await createSession(user.id);
   res.clearCookie("prfolio_oauth_state", cookieOptions);
   res.cookie(sessionCookieName, session, { ...cookieOptions, maxAge: 30 * 24 * 60 * 60 * 1000 });
-  res.redirect(env.FRONTEND_URL);
+  res.redirect(`${env.FRONTEND_URL}/dashboard`);
 }
 
 export async function me(req: Request, res: Response) {
