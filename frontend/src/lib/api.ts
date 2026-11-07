@@ -91,6 +91,16 @@ export function updatePullRequest(id: string, changes: { featured?: boolean; hid
   return request<ApiPullRequest>(`/prs/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(changes) });
 }
 
+// Saves the order of the user's featured PRs. `ids` is the full desired order. keepalive lets a save that is
+// pending when the tab is closed or refreshed still reach the server.
+export function reorderFeaturedPullRequests(ids: string[]) {
+  return request<{ items: Array<{ id: string; displayOrder: number }> }>("/prs/featured/order", {
+    method: "PUT",
+    body: JSON.stringify({ ids }),
+    keepalive: true,
+  });
+}
+
 export function updatePublication(isPublished: boolean) {
   return request<{ isPublished: boolean; profileSlug: string }>("/profile/publication", {
     method: "PATCH",
