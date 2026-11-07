@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { AppError } from "../middleware/error.middleware";
 import type { z } from "zod";
 import type { listPrsSchema } from "../schemas/validation.schemas";
 
@@ -23,6 +24,34 @@ export async function listPrs(userId: string, params: ListParams) {
 }
 
 export const getOwnedPr = (userId: string, id: string) => prisma.pullRequest.findFirst({ where: { id, userId } });
+
+// Featured PRs shown on the public profile: featured and not hidden. Ordered by displayOrder,
+// the same ordering the public profile query uses.
+const publicFeaturedWhere = (userId: string) => ({ userId, featured: true, hidden: false });
+const publicFeaturedOrderBy = [{ displayOrder: "asc" as const }, { createdAtGitHub: "desc" as const }, { id: "asc" as const }];
+
+// displayOrder for a PR that is being featured now, so it lands at the end of the featured list.
+export async function nextFeaturedOrder(userId: string) {
+  const { _max } = await prisma.pullRequest.aggregate({ where: publicFeaturedWhere(userId), _max: { displayOrder: true } });
+  return (_max.displayOrder ?? -1) + 1;
+}
+
+// Persists a new order for the user's featured PRs. `ids` is the desired order. Every id must be one of
+// the caller's own featured PRs, otherwise nothing is written. Featured PRs missing from `ids` (for example
+// featured from another tab meanwhile) keep their relative order after the listed ones.
+export async function reorderFeatured(userId: string, ids: string[]) {
+  const current = await prisma.pullRequest.findMany({ where: publicFeaturedWhere(userId), orderBy: publicFeaturedOrderBy, select: { id: true, displayOrder: true } });
+  const owned = new Set(current.map((pr) => pr.id));
+  if (ids.some((id) => !owned.has(id))) throw new AppError(404, "PR_NOT_FOUND", "One or more featured pull requests were not found");
+  const requested = new Set(ids);
+  const finalIds = [...ids, ...current.filter((pr) => !requested.has(pr.id)).map((pr) => pr.id)];
+  const previous = new Map(current.map((pr) => [pr.id, pr.displayOrder]));
+  const changes = finalIds.flatMap((id, index) => (previous.get(id) === index ? [] : [{ id, displayOrder: index }]));
+  if (changes.length > 0) {
+    await prisma.$transaction(changes.map((change) => prisma.pullRequest.updateMany({ where: { id: change.id, ...publicFeaturedWhere(userId) }, data: { displayOrder: change.displayOrder } })));
+  }
+  return finalIds.map((id, index) => ({ id, displayOrder: index }));
+}
 
 export async function getStats(userId: string) {
   const [total, featured, hidden, merged, open, closed] = await Promise.all([
